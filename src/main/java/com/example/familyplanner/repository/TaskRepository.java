@@ -23,7 +23,7 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 
     Page<Task> findByCreatedBy(User user, Pageable pageable);
 
-    List<Task> findByDueDateBetween(LocalDate startDate, LocalDate endDate);
+    List<Task> findByDueDateBetweenAndCreatedBy(LocalDate startDate, LocalDate endDate, User createdBy);
 
     @Query("SELECT t FROM Task t WHERE " +
             "(:familyId IS NULL OR t.familyId = :familyId) AND " +

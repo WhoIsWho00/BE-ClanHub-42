@@ -102,8 +102,15 @@ public class TaskService {
     }
 
 
-    public List<TaskResponseInCalendarDto> getTasksBetweenDates(LocalDate startDate, LocalDate endDate) {
-        List<Task> taskList = taskRepository.findByDueDateBetween(startDate, endDate);
+    public List<TaskResponseInCalendarDto> getTasksBetweenDates(LocalDate startDate, LocalDate endDate, String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<Task> taskList = taskRepository.findByDueDateBetweenAndCreatedBy(startDate, endDate, user);
+
+
+
         return taskConverter.convertTasksToDto(taskList);
     }
 
