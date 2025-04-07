@@ -108,6 +108,9 @@ public class TaskService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<Task> taskList = taskRepository.findByDueDateBetweenAndCreatedBy(startDate, endDate, user);
+
+
+
         return taskConverter.convertTasksToDto(taskList);
     }
 
