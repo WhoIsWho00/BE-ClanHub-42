@@ -35,31 +35,31 @@ public class TaskService {
     private final TaskConverter taskConverter;
     private final UserRepository userRepository;
 
-    public Page<TaskResponseDto> getTasks(
-            UUID familyId,
-            Boolean completed,
-            TaskStatus status,
-            UUID assignedTo,
-            Integer priority,
-            int page,
-            int size,
-            String sortBy,
-            String direction) {
-
-        if (sortBy == null || sortBy.isEmpty()) {
-            sortBy = "createdAt";
-        }
-        Sort sort = direction != null && direction.equalsIgnoreCase("ASC")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Page<Task> taskPage = taskRepository.findTasksWithFilters(
-                familyId, completed, status, assignedTo, priority, pageable);
-
-        return taskPage.map(taskConverter::convertToDto);
-    }
+//    public Page<TaskResponseDto> getTasks(
+//            UUID familyId,
+//            Boolean completed,
+//            TaskStatus status,
+//            UUID assignedTo,
+//            Integer priority,
+//            int page,
+//            int size,
+//            String sortBy,
+//            String direction) {
+//
+//        if (sortBy == null || sortBy.isEmpty()) {
+//            sortBy = "createdAt";
+//        }
+//        Sort sort = direction != null && direction.equalsIgnoreCase("ASC")
+//                ? Sort.by(sortBy).ascending()
+//                : Sort.by(sortBy).descending();
+//
+//        Pageable pageable = PageRequest.of(page, size, sort);
+//
+//        Page<Task> taskPage = taskRepository.findTasksWithFilters(
+//                familyId, completed, status, assignedTo, priority, pageable);
+//
+//        return taskPage.map(taskConverter::convertToDto);
+//    }
 
     public TaskResponseDto getTaskById(UUID id) {
         Task task = taskRepository.findById(id)
@@ -107,8 +107,7 @@ public class TaskService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        List<Task> taskList = taskRepository.findByDueDateBetweenAndCreatedBy(startDate, endDate, user);
-
+        List<Task> taskList = taskRepository.findByDueDateBetweenAndCreatedByAndStatus(startDate, endDate, user, TaskStatus.COMPLETED);
 
 
         return taskConverter.convertTasksToDto(taskList);

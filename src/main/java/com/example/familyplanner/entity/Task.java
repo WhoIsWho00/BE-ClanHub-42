@@ -54,6 +54,9 @@ public class Task {
     @Column(name = "priority")
     private Integer priority;
 
+    @Column(name = "completion_date")
+    private LocalDate completionDate;
+
     @PrePersist
     protected void onCreate(){
         createdAt = LocalDate.now();

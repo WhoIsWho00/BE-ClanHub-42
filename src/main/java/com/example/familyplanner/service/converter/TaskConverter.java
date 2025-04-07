@@ -30,6 +30,7 @@ public class TaskConverter {
         dto.setStatus(task.getStatus());
         dto.setFamilyId(task.getFamilyId());
         dto.setPriority(task.getPriority());
+        dto.setCompletionDate(task.getCompletionDate());
 
         if (task.getAssignedTo() != null) {
             dto.setAssignedTo(userConverter.createDtoFromUser(task.getAssignedTo()));
@@ -59,6 +60,7 @@ public class TaskConverter {
             dto.setCompleted(task.isCompleted());
 //            dto.setFamilyId(task.getFamilyId());
             dto.setPriority(task.getPriority());
+            dto.setCompletionDate(task.getCompletionDate());
 
 
 

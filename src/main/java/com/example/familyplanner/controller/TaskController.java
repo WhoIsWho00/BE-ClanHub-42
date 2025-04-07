@@ -109,7 +109,7 @@ import java.util.UUID;
 
         String email = principal.getName();
 
-        List<TaskResponseInCalendarDto> tasksBetweenDates= taskService.getTasksBetweenDates(startDate, endDate, email);
+        List<TaskResponseInCalendarDto> tasksBetweenDates = taskService.getTasksBetweenDates(startDate, endDate, email);
             return ResponseEntity.ok(tasksBetweenDates);
 
         }

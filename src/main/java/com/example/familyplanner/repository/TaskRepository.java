@@ -17,13 +17,19 @@ import java.util.UUID;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, UUID> {
 
-    Page<Task> findByAssignedTo(User user, Pageable pageable);
+//    Page<Task> findByAssignedTo(User user, Pageable pageable);
+//
+//    Page<Task> findByFamilyId(UUID familyId, Pageable pageable);
+//
+//    Page<Task> findByCreatedBy(User user, Pageable pageable);
 
-    Page<Task> findByFamilyId(UUID familyId, Pageable pageable);
 
-    Page<Task> findByCreatedBy(User user, Pageable pageable);
-
-    List<Task> findByDueDateBetweenAndCreatedBy(LocalDate startDate, LocalDate endDate, User createdBy);
+//    @Query("SELECT t FROM Task t WHERE " +
+//            "t.createdBy = :user AND t.status = :status AND " + "((t.status != 'COMPLETED' AND " +
+//            "t.dueDate BETWEEN :startDate AND :endDate) " + "OR " +
+//            "(t.status = 'COMPLETED' AND " +
+//            "t.completionDate BETWEEN :startDate AND :endDate))")
+    List<Task> findByDueDateBetweenAndCreatedByAndStatus(LocalDate startDate, LocalDate endDate, User user, TaskStatus status);
 
     @Query("SELECT t FROM Task t WHERE " +
             "(:familyId IS NULL OR t.familyId = :familyId) AND " +
@@ -38,4 +44,13 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
             @Param("userId") UUID userId,
             @Param("priority") Integer priority,
             Pageable pageable);
+
+//    @Query("SELECT t FROM Task t WHERE " +
+//            "t.createdBy = :user AND " + "((t.status != 'COMPLETED' AND " +
+//            "t.dueDate BETWEEN :startDate AND :endDate) OR " + "(t.status = 'COMPLETED' AND " +
+//            "t.completionDate BETWEEN :startDate AND :endDate))")
+//
+//    List<Task> findTasksInDateRange( @Param("user") User user,
+//                                     @Param("startDate") LocalDate startDate,
+//                                     @Param("endDate") LocalDate endDate );
 }
