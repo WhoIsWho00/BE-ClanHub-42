@@ -11,11 +11,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,35 +25,44 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtCore jwtCore;
     private final UserService userService;
 
+    private static final List<String> PUBLIC_ENDPOINTS = List.of(
+            "/api/auth/sign-up",
+            "/api/auth/sign-in",
+            "/api/auth/forgot-password",
+            "/api/auth/reset-password",
+            "/api/auth",
+            "/swagger-ui/",
+            "/v3/api-docs/"
+    );
+
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Виключаємо JWT-фільтрацію для публічних ендпоінтів
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/auth/sign-up") ||   // Реєстрація
-                path.startsWith("/api/auth/sign-in") ||   // Вхід
-                path.startsWith("/swagger-ui/") ||        // Swagger UI
-                path.startsWith("/v3/api-docs/") ||       // API документація
-                request.getMethod().equals("OPTIONS");    // OPTIONS запити
+        String method = request.getMethod();
+
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            return true; // Always allow pre-flight CORS requests
+        }
+
+        // Skip filtering if the path matches any public endpoint
+        return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith);
     }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        try {
-            String jwt = parseJwt(request);
-            if (jwt != null && jwtCore.validateToken(jwt)) {
-                String email = jwtCore.getUserNameFromJwt(jwt);
-                UserDetails userDetails = userService.loadUserByUsername(email);
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        String jwt = parseJwt(request);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        } catch (Exception e) {
-            logger.error("Ошибка аутентификации: ", e);
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
-            return;
+        if (jwt != null && jwtCore.validateToken(jwt)) {
+            String email = jwtCore.getUserNameFromJwt(jwt);
+            UserDetails userDetails = userService.loadUserByUsername(email);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities()
+            );
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
@@ -60,11 +70,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
             return headerAuth.substring(7);
         }
-
         return null;
     }
 }
