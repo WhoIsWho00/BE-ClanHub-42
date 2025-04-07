@@ -54,6 +54,9 @@ public class Task {
     @Column(name = "priority")
     private Integer priority;
 
+    @Column(name = "completion_date")
+    private LocalDate completionDate;
+
     @PrePersist
     protected void onCreate(){
         createdAt = LocalDate.now();
@@ -74,5 +77,10 @@ public void setCompleted(boolean completed) {
     public void setStatus(TaskStatus status) {
         this.status = status;
         this.completed = (status == TaskStatus.COMPLETED);
+
+        if (status == TaskStatus.COMPLETED) {
+            this.completionDate = LocalDate.now();
+        }
     }
 }
+

@@ -113,6 +113,33 @@ import java.util.UUID;
             return ResponseEntity.ok(tasksBetweenDates);
 
         }
+
+    @Operation(
+            summary = "Get tasks for calendar based on completion date for completed tasks",
+            description = "Retrieves a list of tasks where incomplete tasks are filtered by due date and completed tasks by completion date",
+            security = @SecurityRequirement(name = "JWT"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Successful operation"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized (authentication required)"),
+                    @ApiResponse(responseCode = "403", description = "Forbidden (insufficient permissions)"),
+                    @ApiResponse(responseCode = "404", description = "Not Found"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    )
+    @GetMapping("/calendar/smart")
+    public ResponseEntity<List<TaskResponseInCalendarDto>> getTasksInDateRange(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            Principal principal) {
+
+        if(principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String email = principal.getName();
+        List<TaskResponseInCalendarDto> tasksInDateRange = taskService.getTasksInDateRange(startDate, endDate, email);
+        return ResponseEntity.ok(tasksInDateRange);
+    }
       
 //    @Operation(
 //            summary = "Get tasks with pagination and filtering",

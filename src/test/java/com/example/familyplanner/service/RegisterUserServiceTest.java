@@ -11,6 +11,7 @@ import com.example.familyplanner.repository.UserRepository;
 import com.example.familyplanner.service.converter.UserConverter;
 import com.example.familyplanner.service.exception.AlreadyExistException;
 import com.example.familyplanner.service.exception.NotFoundException;
+import com.example.familyplanner.service.exception.UserAlreadyExistException;
 import com.example.familyplanner.service.validation.ValidationService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -135,7 +136,7 @@ class RegisterUserServiceTest {
 
         when(validationService.userExists(anyString())).thenReturn(true);
 
-        assertThrows(AlreadyExistException.class, () ->
+        assertThrows(UserAlreadyExistException.class, () ->
                 registerUserService.createNewUser(registrationRequest, mockRequest)
         );
 
