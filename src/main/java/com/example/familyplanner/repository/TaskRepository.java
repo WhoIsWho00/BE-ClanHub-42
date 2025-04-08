@@ -21,7 +21,7 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 //
 //    Page<Task> findByFamilyId(UUID familyId, Pageable pageable);
 //
-//    Page<Task> findByCreatedBy(User user, Pageable pageable);
+    List<Task> findByCreatedBy(User user);
   
     List<Task> findByDueDateBetweenAndCreatedBy(LocalDate startDate, LocalDate endDate, User createdBy);
 
