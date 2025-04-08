@@ -22,7 +22,7 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 //    Page<Task> findByFamilyId(UUID familyId, Pageable pageable);
 //
 //    Page<Task> findByCreatedBy(User user, Pageable pageable);
-
+  
     List<Task> findByDueDateBetweenAndCreatedBy(LocalDate startDate, LocalDate endDate, User createdBy);
 
     @Query("SELECT t FROM Task t WHERE " +
@@ -39,12 +39,13 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
             @Param("priority") Integer priority,
             Pageable pageable);
 
-    @Query("SELECT t FROM Task t WHERE t.createdBy = :user AND " +
-            "((t.status != 'COMPLETED' AND t.dueDate BETWEEN :startDate AND :endDate) OR " +
-            "(t.status = 'COMPLETED' AND t.completionDate BETWEEN :startDate AND :endDate))")
-    List<Task> findTasksInDateRange(
-            @Param("user") User user,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate
-    );
+//     @Query("SELECT t FROM Task t WHERE t.createdBy = :user AND " +
+//             "((t.status != 'COMPLETED' AND t.dueDate BETWEEN :startDate AND :endDate) OR " +
+//             "(t.status = 'COMPLETED' AND t.completionDate BETWEEN :startDate AND :endDate))")
+//     List<Task> findTasksInDateRange(
+//             @Param("user") User user,
+//             @Param("startDate") LocalDate startDate,
+//             @Param("endDate") LocalDate endDate
+//     );
+
 }
