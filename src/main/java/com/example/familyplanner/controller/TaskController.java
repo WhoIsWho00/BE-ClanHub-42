@@ -114,6 +114,19 @@ import java.util.UUID;
 
         }
 
+    @GetMapping("/list")
+    public ResponseEntity<List<TaskResponseDto>> getMyTasks(Principal principal) {
+
+        if(principal == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String email = principal.getName();
+
+        List<TaskResponseDto> tasks = taskService.getTasksForUser(email);
+        return ResponseEntity.ok(tasks);
+    }
+
 //
 
 //    @Operation(
@@ -474,7 +487,7 @@ import java.util.UUID;
                 }
        )
        @DeleteMapping
-        public ResponseEntity<String> deleteTaskById (@RequestParam UUID id){
+        public ResponseEntity<String> deleteTaskById (@RequestParam UUID id ){
             taskService.deleteTask(id);
             return ResponseEntity.ok("Task deleted successfully");
         }
