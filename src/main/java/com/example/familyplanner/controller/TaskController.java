@@ -481,7 +481,7 @@ import java.util.UUID;
 
 
         @Operation(summary = "Update Task",
-                description = "Update Task by it's unique id. Access only for authorized User",
+                description = "Update Task details by it's unique id. Access only for authorized User",
                 security = @SecurityRequirement(name = "JWT"),
                 responses = {
         @ApiResponse(responseCode = "200", description = "Successful operation",
