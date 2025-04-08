@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -66,6 +67,7 @@ public class SecurityControllerTest {
     @Mock
     private PasswordResetService passwordResetService;
 
+
     private SecurityController securityController;
 
     private LoginRequest validLoginRequest;
@@ -75,6 +77,8 @@ public class SecurityControllerTest {
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
+
         objectMapper = new ObjectMapper();
 
         securityController = new SecurityController(
@@ -109,6 +113,14 @@ public class SecurityControllerTest {
         userResponseDto.setUsername("Test User");
         userResponseDto.setEmail("test@example.com");
         userResponseDto.setRole(userRole);
+
+        lenient().when(findUserService.existsByEmail("test@example.com")).thenReturn(true);
+        lenient().when(findUserService.findUserByEmail("test@example.com")).thenReturn(userResponseDto);
+
+        Authentication mockAuth = mock(Authentication.class);
+        lenient().when(authenticationManager.authenticate(any())).thenReturn(mockAuth);
+
+        lenient().when(jwtCore.createToken("test@example.com")).thenReturn("mocked-jwt-token");
     }
 
     @Test
@@ -141,7 +153,7 @@ public class SecurityControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

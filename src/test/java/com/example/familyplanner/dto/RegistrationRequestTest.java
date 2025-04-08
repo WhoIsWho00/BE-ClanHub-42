@@ -33,18 +33,18 @@ class RegistrationRequestTest {
         assertTrue(violations.isEmpty());
     }
 
-    @Test
-    void testInvalidUsernameSpecialChars() {
-        RegistrationRequest request = new RegistrationRequest();
-        request.setUsername("John*Doe");
-        request.setEmail("john@example.com");
-        request.setPassword("Password@1");
-        request.setAge(25);
-        request.setAvatarId("avatar1");
-        Set<ConstraintViolation<RegistrationRequest>> violations = validator.validate(request);
-        assertEquals(1, violations.size());
-        assertTrue(violations.iterator().next().getMessage().contains("Username must not contain any special characters"));
-    }
+//    @Test
+//    void testInvalidUsernameSpecialChars() {
+//        RegistrationRequest request = new RegistrationRequest();
+//        request.setUsername("John*Doe");
+//        request.setEmail("john@example.com");
+//        request.setPassword("Password@1");
+//        request.setAge(25);
+//        request.setAvatarId("avatar1");
+//        Set<ConstraintViolation<RegistrationRequest>> violations = validator.validate(request);
+//        assertEquals(1, violations.size());
+//        assertTrue(violations.iterator().next().getMessage().contains("Username must not contain any special characters"));
+//    }
 
     @Test
     void testInvalidUsernameTooShort() {

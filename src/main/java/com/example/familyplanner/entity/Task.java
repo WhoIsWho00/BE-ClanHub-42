@@ -77,5 +77,10 @@ public void setCompleted(boolean completed) {
     public void setStatus(TaskStatus status) {
         this.status = status;
         this.completed = (status == TaskStatus.COMPLETED);
+
+        if (status == TaskStatus.COMPLETED) {
+            this.completionDate = LocalDate.now();
+        }
     }
 }
+
