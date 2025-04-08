@@ -1,15 +1,13 @@
 package com.example.familyplanner.Security;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +17,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -36,40 +34,22 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Swagger UI access
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/swagger-ui/index.html").permitAll()
-                        .requestMatchers("/api-docs/**").permitAll()
-                        .requestMatchers("/api-docs").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        // API endpoints
-                        .requestMatchers("/api/auth/sign-up").permitAll()
-                        .requestMatchers("/api/auth/sign-in").permitAll()
-                        .requestMatchers("/api/auth/forgot-password").permitAll()
-                        .requestMatchers("/api/auth/reset-password").permitAll()
-                        .requestMatchers("/api/auth").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
-                        // tasks endpoint
-                        .requestMatchers("/api/tasks/**").authenticated()
-                        .requestMatchers("/api/tasks").authenticated()
+                        // Swagger, public APIs
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth").permitAll()
+                        // Authenticated for the rest
+                        .requestMatchers("/api/tasks/**", "/api/tasks").authenticated()
                         .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                );
 
-
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        http.addFilterBefore(emptyRequestFilter, JwtAuthFilter.class);
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
+        http.addFilterBefore(emptyRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthFilter, EmptyRequestFilter.class);
 
         return http.build();
-
-
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -81,31 +61,17 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.addAllowedOriginPattern("*");
-//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173" ));
-//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//        configuration.setAllowedHeaders(Arrays.asList("*"));
-//        configuration.setAllowCredentials(false);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*");
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // your frontend
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }

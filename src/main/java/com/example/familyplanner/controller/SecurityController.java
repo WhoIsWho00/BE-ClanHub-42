@@ -312,18 +312,47 @@ public class SecurityController {
                             )))
             }
     )
+//    public ResponseEntity<PasswordResetRequestResponseDto> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
+//        try {
+//            passwordResetService.sendResetToken(request.getEmail());
+//        } catch (NotFoundException e) {
+//            // Не показывает, созданна почта или нет(для коонфидециальности)
+//        }
+//
+//        PasswordResetRequestResponseDto responseDto = PasswordResetRequestResponseDto.builder()
+//                .message("If your email is registered, a password reset code has been sent.")
+//                .build();
+//
+//        return ResponseEntity.ok(responseDto);
+//    }
     public ResponseEntity<PasswordResetRequestResponseDto> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
+        boolean userExists = false;
+
         try {
-            passwordResetService.sendResetToken(request.getEmail());
-        } catch (NotFoundException e) {
-            // Не показывает, созданна почта или нет(для коонфидециальности)
+            // Перевіряємо, чи існує користувач, не розкриваючи цю інформацію клієнту
+            userExists = findUserService.existsByEmail(request.getEmail());
+
+            // Відправляємо код скидання тільки якщо користувач існує
+            if (userExists) {
+                passwordResetService.sendResetToken(request.getEmail());
+            }
+
+            // В будь-якому випадку показуємо однакове повідомлення
+            PasswordResetRequestResponseDto responseDto = PasswordResetRequestResponseDto.builder()
+                    .message("If your email is registered, a password reset code has been sent.")
+                    .success(true)
+                    .build();
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            // Відправляємо загальне повідомлення про помилку
+            PasswordResetRequestResponseDto errorResponse = PasswordResetRequestResponseDto.builder()
+                    .message("This email is not registered in our system.")
+                    .success(false)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
-
-        PasswordResetRequestResponseDto responseDto = PasswordResetRequestResponseDto.builder()
-                .message("If your email is registered, a password reset code has been sent.")
-                .build();
-
-        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/reset-password")

@@ -51,5 +51,6 @@ public class TaskResponseDto {
     @Schema(description = "Task priority (1-5, where 5 is highest)", example = "3")
     private Integer priority;
 
+    @Schema(description = "")
     private LocalDate completionDate;
 }
