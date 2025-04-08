@@ -43,6 +43,7 @@ public class TaskConverter {
     }
 
     public List<TaskResponseInCalendarDto> convertTasksToDto(List<Task> taskList) {
+
         if(taskList == null ) {
             throw new NullPointerException("taskList is null");
         }
@@ -61,7 +62,6 @@ public class TaskConverter {
 //            dto.setFamilyId(task.getFamilyId());
             dto.setPriority(task.getPriority());
             dto.setCompletionDate(task.getCompletionDate());
-
 
 
             if (task.getAssignedTo() != null) {

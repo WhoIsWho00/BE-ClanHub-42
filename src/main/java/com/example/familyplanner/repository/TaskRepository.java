@@ -29,7 +29,7 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 //            "t.dueDate BETWEEN :startDate AND :endDate) " + "OR " +
 //            "(t.status = 'COMPLETED' AND " +
 //            "t.completionDate BETWEEN :startDate AND :endDate))")
-    List<Task> findByDueDateBetweenAndCreatedByAndStatus(LocalDate startDate, LocalDate endDate, User user, TaskStatus status);
+    List<Task> findByDueDateBetweenAndCreatedBy(LocalDate startDate, LocalDate endDate, User createdBy);
 
     @Query("SELECT t FROM Task t WHERE " +
             "(:familyId IS NULL OR t.familyId = :familyId) AND " +
