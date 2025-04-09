@@ -558,13 +558,13 @@ import java.util.UUID;
         @PutMapping
         public ResponseEntity<TaskResponseDto> updateTaskDetails(@RequestParam UUID taskId,
                                                                  @RequestBody UpdateTaskDetailsRequest request,
-                                                                 Principal principal) {
+                                                                 @RequestParam String email) {
 
-            if (principal == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-
-            String email = principal.getName();
+//            if (principal == null) {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//            }
+//
+//            String email = principal.getName();
 
         TaskResponseDto updatedTask = taskService.updateTaskDetailsById(taskId, request, email);
         return ResponseEntity.ok(updatedTask);
