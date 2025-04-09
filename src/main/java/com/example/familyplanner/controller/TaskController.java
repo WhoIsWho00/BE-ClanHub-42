@@ -558,7 +558,13 @@ import java.util.UUID;
         @PutMapping
         public ResponseEntity<TaskResponseDto> updateTaskDetails(@RequestParam UUID taskId,
                                                                  @RequestBody UpdateTaskDetailsRequest request,
-                                                                 @RequestParam String email) {
+                                                                 Principal principal) {
+
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            String email = principal.getName();
 
         TaskResponseDto updatedTask = taskService.updateTaskDetailsById(taskId, request, email);
         return ResponseEntity.ok(updatedTask);
