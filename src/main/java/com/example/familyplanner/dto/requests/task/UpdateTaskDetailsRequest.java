@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Schema(description = "Request model for update task details")
 public class UpdateTaskDetailsRequest {
     @Schema(description = "Title of the task", example = "Buy groceries")
-    @Size(min = 10, max = 20)
+    @Size(min = 1, max = 20)
     @NotBlank(message = "Title is required")
     private String title;
 
