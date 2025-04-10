@@ -45,13 +45,10 @@ public class FindUserService {
 
     public boolean existsByEmail(String email) {
         try {
-            userRepository.findByEmail(email)
-                    .orElseThrow(() -> new NonExistingEmailException("User not found"));
-            return true;
-        } catch (NotFoundException e) {
+            return userRepository.existsByEmail(email);
+        } catch (Exception e) {
             return false;
         }
-
     }
 
 

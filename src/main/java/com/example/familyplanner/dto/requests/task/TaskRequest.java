@@ -17,12 +17,12 @@ import java.time.LocalDate;
 @Schema(description = "Request model for task details")
 public class TaskRequest {
     @Schema(description = "Title of the task", example = "Buy groceries")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     @NotBlank(message = "Title is required")
     private String title;
 
     @Schema(description = "Detailed description of the task", example = "Buy milk, bread, and eggs from the store")
-    @Size(min = 0, max = 100)
+    @Size(max = 100)
     private String description;
 
     @Schema(description = "Due date for the task in format YYYY-MM-DD", example = "2025-03-31")

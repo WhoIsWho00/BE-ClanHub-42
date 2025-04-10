@@ -31,4 +31,6 @@ public class ResetPasswordRequest {
     @NotBlank(message = "Password confirmation cannot be empty")
     @Schema(description = "Confirmation of new password", example = "NewPassword!23", required = true)
     private String confirmPassword;
+
+    private String email;
 }

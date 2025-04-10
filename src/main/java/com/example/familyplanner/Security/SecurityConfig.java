@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Swagger, public APIs
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth").permitAll()
+                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/verify-reset-code", "/api/auth").permitAll()
                         // Authenticated for the rest
                         .requestMatchers("/api/tasks/**", "/api/tasks").authenticated()
                         .anyRequest().authenticated()

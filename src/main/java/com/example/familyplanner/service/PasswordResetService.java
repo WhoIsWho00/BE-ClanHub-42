@@ -54,15 +54,19 @@ public class PasswordResetService {
         emailService.sendPasswordResetEmail(user.getEmail(), token);
     }
 
-    public void resetPassword(String token, String newPassword, String confirmPassword) {
+    public void resetPassword(String token, String newPassword, String confirmPassword, String email) {
         // Validate that passwords match
         if (!newPassword.equals(confirmPassword)) {
             throw new ValidationException("Passwords do not match");
         }
 
         // Find the token
-        PasswordResetToken resetToken = resetTokenRepository.findByToken(token)
+        PasswordResetToken resetToken = resetTokenRepository.findByTokenAndUserEmail(token, email)
                 .orElseThrow(() -> new InvalidTokenException("Invalid token"));
+
+//        if(!resetToken.getToken().equals(token)) {
+//            throw new InvalidTokenException("Invalid token");
+//        }
 
         // Check if token is expired
         if (resetToken.isExpired()) {
