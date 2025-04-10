@@ -5,6 +5,7 @@ import com.example.familyplanner.dto.requests.signInUp.LoginRequest;
 import com.example.familyplanner.dto.requests.signInUp.RegistrationRequest;
 import com.example.familyplanner.dto.responses.UserResponseDto;
 import com.example.familyplanner.entity.Role;
+import com.example.familyplanner.repository.PasswordResetTokenRepository;
 import com.example.familyplanner.repository.UserRepository;
 import com.example.familyplanner.service.FindUserService;
 import com.example.familyplanner.service.PasswordResetService;
@@ -67,6 +68,9 @@ public class SecurityControllerTest {
     @Mock
     private PasswordResetService passwordResetService;
 
+    @Mock
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
 
     private SecurityController securityController;
 
@@ -86,7 +90,8 @@ public class SecurityControllerTest {
                 jwtCore,
                 registerUserService,
                 findUserService,
-                passwordResetService
+                passwordResetService,
+                passwordResetTokenRepository
         );
         mockMvc = MockMvcBuilders
                 .standaloneSetup(securityController)

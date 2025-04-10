@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-//нужны тесты
+
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByUsername(String username);
 
     List<User> findByRole(Role role);
+
+    boolean existsByEmail(String email);
 }

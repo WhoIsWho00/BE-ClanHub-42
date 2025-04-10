@@ -1,6 +1,7 @@
 package com.example.familyplanner.controller;
 
 import com.example.familyplanner.Security.JWT.JwtCore;
+import com.example.familyplanner.dto.requests.password.TokenVerificationRequest;
 import com.example.familyplanner.dto.requests.signInUp.LoginRequest;
 import com.example.familyplanner.dto.requests.password.PasswordResetRequest;
 import com.example.familyplanner.dto.requests.signInUp.RegistrationRequest;
@@ -10,9 +11,12 @@ import com.example.familyplanner.dto.responses.password.PasswordResetRequestResp
 import com.example.familyplanner.dto.responses.password.PasswordResetResponseDto;
 import com.example.familyplanner.dto.responses.signInUp.AuthResponseDto;
 import com.example.familyplanner.dto.responses.signInUp.RegisterResponseDto;
+import com.example.familyplanner.entity.PasswordResetToken;
+import com.example.familyplanner.repository.PasswordResetTokenRepository;
 import com.example.familyplanner.service.FindUserService;
 import com.example.familyplanner.service.PasswordResetService;
 import com.example.familyplanner.service.RegisterUserService;
+import com.example.familyplanner.service.exception.InvalidTokenException;
 import com.example.familyplanner.service.exception.NonExistingEmailException;
 import com.example.familyplanner.service.exception.NotFoundException;
 import com.example.familyplanner.service.exception.ValidationException;
@@ -36,6 +40,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+import java.util.Map;
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -49,6 +57,7 @@ public class SecurityController {
     private final RegisterUserService registerUserService;
     private final FindUserService findUserService;
     private final PasswordResetService passwordResetService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
 
     @Operation(
@@ -298,6 +307,19 @@ public class SecurityController {
                                             }
                                             """
                             ))),
+                    @ApiResponse(responseCode = "409", description = "Data validation conflict",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            value = """
+                                            {
+                                              "timestamp": "2025-03-25T16:26:19.597Z",
+                                              "status": 409,
+                                              "error": "Conflict",
+                                              "message": "Email does not exist or data entered incorrectly.",
+                                              "path": "/api/auth/forgot-password"
+                                            }
+                                            """
+                                    ))),
                     @ApiResponse(responseCode = "500", description = "Internal server error",
                             content = @Content(mediaType = "application/json", examples = @ExampleObject(
                                     value = """
@@ -312,18 +334,47 @@ public class SecurityController {
                             )))
             }
     )
+//    public ResponseEntity<PasswordResetRequestResponseDto> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
+//        try {
+//            passwordResetService.sendResetToken(request.getEmail());
+//        } catch (NotFoundException e) {
+//            // Не показывает, созданна почта или нет(для коонфидециальности)
+//        }
+//
+//        PasswordResetRequestResponseDto responseDto = PasswordResetRequestResponseDto.builder()
+//                .message("If your email is registered, a password reset code has been sent.")
+//                .build();
+//
+//        return ResponseEntity.ok(responseDto);
+//    }
     public ResponseEntity<PasswordResetRequestResponseDto> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
         try {
+            boolean userExists = findUserService.existsByEmail(request.getEmail());
+
+            if (!userExists) {
+                PasswordResetRequestResponseDto errorResponse = PasswordResetRequestResponseDto.builder()
+                        .message("This email is not registered in our system.")
+                        .success(false)
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // 404
+            }
+
+            // Якщо існує — надсилаємо код
             passwordResetService.sendResetToken(request.getEmail());
-        } catch (NotFoundException e) {
-            // Не показывает, созданна почта или нет(для коонфидециальности)
+
+            PasswordResetRequestResponseDto responseDto = PasswordResetRequestResponseDto.builder()
+                    .message("If your email is registered, a password reset code has been sent.")
+                    .success(true)
+                    .build();
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+
+            PasswordResetRequestResponseDto errorResponse = PasswordResetRequestResponseDto.builder()
+                    .message("An error occurred. Please try again later.")
+                    .success(false)
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // 500 тільки на справжню помилку
         }
-
-        PasswordResetRequestResponseDto responseDto = PasswordResetRequestResponseDto.builder()
-                .message("If your email is registered, a password reset code has been sent.")
-                .build();
-
-        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/reset-password")
@@ -376,14 +427,18 @@ public class SecurityController {
                                             """
                             )))}
     )
-    public ResponseEntity<PasswordResetResponseDto> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        //метод сам проверает не нарушены ли данные. В случае чего - сам прокинет exception
-        passwordResetService.resetPassword(request.getToken(), request.getNewPassword(), request.getConfirmPassword());
-
+    public ResponseEntity<PasswordResetResponseDto> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        passwordResetService.resetPassword(
+                request.getToken(),
+                request.getNewPassword(),
+                request.getConfirmPassword(),
+                request.getEmail()
+        );
         PasswordResetResponseDto responseDto = PasswordResetResponseDto.builder()
                 .message("Your password has been reset successfully")
                 .build();
-
         return ResponseEntity.ok(responseDto);
     }
 
@@ -392,4 +447,50 @@ public class SecurityController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("The endpoint you are trying to reach does not exist.");
     }
+
+
+    @PostMapping("/verify-reset-code")
+    @Operation(
+            summary = "Verify reset code",
+            description = "Verifies if the reset code is valid without changing the password",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Code is valid"),
+                    @ApiResponse(responseCode = "400", description = "Invalid token or code format"),
+                    @ApiResponse(responseCode = "410", description = "Code has expired")
+            }
+    )
+    public ResponseEntity<?> verifyResetCode(@Valid @RequestBody TokenVerificationRequest request) {
+        try {
+            // Найти токен в БД
+            //PasswordResetToken resetToken = passwordResetService.findByTokenAndEmail(request.getToken(), request.getEmail());
+
+            Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByTokenAndUserEmail(
+                    request.getToken(),
+                    request.getEmail()
+            );
+
+            // Проверить, что токен не истек
+            if (!tokenOpt.isPresent()) {
+                return ResponseEntity.badRequest()
+                        .body(new ErrorResponseDto("invalid_token"));
+            }
+            PasswordResetToken resetToken = tokenOpt.get();
+
+            // Проверить, что токен не истек
+            if (resetToken.isExpired()) {
+                return ResponseEntity.status(HttpStatus.GONE)
+                        .body(new ErrorResponseDto("code_expired"));
+            }
+
+            // Если токен валидный, возвращаем успешный ответ
+            return ResponseEntity.ok(
+                    Map.of("message", "Code is valid", "valid", true)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponseDto("server_error"));
+        }
+    }
+
+
 }

@@ -494,7 +494,7 @@ import java.util.UUID;
 
 
         @Operation(summary = "Update Task",
-                description = "Update Task by it's unique id. Access only for authorized User",
+                description = "Update Task details by it's unique id. Access only for authorized User",
                 security = @SecurityRequirement(name = "JWT"),
                 responses = {
         @ApiResponse(responseCode = "200", description = "Successful operation",
@@ -558,7 +558,13 @@ import java.util.UUID;
         @PutMapping
         public ResponseEntity<TaskResponseDto> updateTaskDetails(@RequestParam UUID taskId,
                                                                  @RequestBody UpdateTaskDetailsRequest request,
-                                                                 @RequestParam String email) {
+                                                                 Principal principal) {
+
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            String email = principal.getName();
 
         TaskResponseDto updatedTask = taskService.updateTaskDetailsById(taskId, request, email);
         return ResponseEntity.ok(updatedTask);
