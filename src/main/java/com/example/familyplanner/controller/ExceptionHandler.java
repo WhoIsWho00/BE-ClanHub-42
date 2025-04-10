@@ -123,4 +123,5 @@ public class ExceptionHandler {
     public ResponseEntity<String> NonExistingEmailException(NonExistingEmailException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
 }

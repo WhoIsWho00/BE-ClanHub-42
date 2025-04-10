@@ -24,4 +24,17 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendConfirmationEmail(String to, String username) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(to);
+        message.setSubject("Family Planner - Account Registration");
+        message.setText("Hello " + username + ",\n\n" +
+                "Thank you for registering with Family Planner. Your account has been successfully created.\n\n" +
+                "You can now log in using your email and password.\n\n" +
+                "Best regards,\nFamily Planner Team");
+
+        mailSender.send(message);
+    }
 }

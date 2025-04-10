@@ -4,7 +4,11 @@ import com.example.familyplanner.dto.requests.task.TaskRequest;
 import com.example.familyplanner.dto.requests.task.UpdateTaskDetailsRequest;
 import com.example.familyplanner.dto.responses.task.TaskResponseDto;
 import com.example.familyplanner.dto.responses.task.TaskResponseInCalendarDto;
+import com.example.familyplanner.entity.Task;
 import com.example.familyplanner.entity.TaskStatus;
+import com.example.familyplanner.entity.User;
+import com.example.familyplanner.repository.TaskRepository;
+import com.example.familyplanner.repository.UserRepository;
 import com.example.familyplanner.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,6 +23,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,6 +37,8 @@ import java.util.UUID;
     public class TaskController {
 
         private final TaskService taskService;
+        private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
 
     @Operation(
@@ -487,7 +495,16 @@ import java.util.UUID;
                 }
        )
        @DeleteMapping
-        public ResponseEntity<String> deleteTaskById (@RequestParam UUID id ){
+        public ResponseEntity<String> deleteTaskById (@RequestParam UUID id, Principal principal){
+           Task task = taskRepository.findById(id)
+                   .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+
+           User currentUser = userRepository.findByEmail(principal.getName())
+                   .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+           if (!task.getCreatedBy().equals(currentUser)) {
+               throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this task");
+           }
             taskService.deleteTask(id);
             return ResponseEntity.ok("Task deleted successfully");
         }

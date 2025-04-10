@@ -1,12 +1,13 @@
 package com.example.familyplanner.controller;
 
 import com.example.familyplanner.Security.JWT.JwtCore;
+import com.example.familyplanner.dto.requests.password.PasswordResetRequest;
+import com.example.familyplanner.dto.requests.password.ResetPasswordRequest;
 import com.example.familyplanner.dto.requests.password.TokenVerificationRequest;
 import com.example.familyplanner.dto.requests.signInUp.LoginRequest;
-import com.example.familyplanner.dto.requests.password.PasswordResetRequest;
 import com.example.familyplanner.dto.requests.signInUp.RegistrationRequest;
-import com.example.familyplanner.dto.requests.password.ResetPasswordRequest;
-import com.example.familyplanner.dto.responses.*;
+import com.example.familyplanner.dto.responses.ErrorResponseDto;
+import com.example.familyplanner.dto.responses.UserResponseDto;
 import com.example.familyplanner.dto.responses.password.PasswordResetRequestResponseDto;
 import com.example.familyplanner.dto.responses.password.PasswordResetResponseDto;
 import com.example.familyplanner.dto.responses.signInUp.AuthResponseDto;
@@ -16,9 +17,7 @@ import com.example.familyplanner.repository.PasswordResetTokenRepository;
 import com.example.familyplanner.service.FindUserService;
 import com.example.familyplanner.service.PasswordResetService;
 import com.example.familyplanner.service.RegisterUserService;
-import com.example.familyplanner.service.exception.InvalidTokenException;
 import com.example.familyplanner.service.exception.NonExistingEmailException;
-import com.example.familyplanner.service.exception.NotFoundException;
 import com.example.familyplanner.service.exception.ValidationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
 import java.util.Map;
 import java.util.Optional;
 
@@ -356,7 +354,7 @@ public class SecurityController {
                         .message("This email is not registered in our system.")
                         .success(false)
                         .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // 404
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse); // 404
             }
 
             // Якщо існує — надсилаємо код

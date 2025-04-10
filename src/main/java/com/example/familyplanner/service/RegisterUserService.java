@@ -29,11 +29,13 @@ public class RegisterUserService {
     private final UserConverter converter;
     private final ValidationService validation;
 
+
     private final UserRegistrationLogRepository logRepository;
 
     private final IpAddressUtil ipAddressUtil;
     private static final int MAX_REGISTRATIONS = 25;
     private static final int TIME_LIMIT_MINUTES = 5;
+    private final EmailService emailService;
 
 
     public UserResponseDto createNewUser(RegistrationRequest request, HttpServletRequest httpRequest) {
@@ -53,6 +55,7 @@ public class RegisterUserService {
         User savedUser = userRepository.save(newUser);
 
         logRepository.save(new UserRegistrationLog(ip, LocalDateTime.now()));
+        emailService.sendConfirmationEmail(newUser.getEmail(), newUser.getUsername());
 
         return converter.createDtoFromUser(savedUser);
     }

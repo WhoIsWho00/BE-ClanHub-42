@@ -32,5 +32,10 @@ public class ResetPasswordRequest {
     @Schema(description = "Confirmation of new password", example = "NewPassword!23", required = true)
     private String confirmPassword;
 
+    @NotBlank(message = "Email cannot be empty")
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
+            message = "Email must be a valid email address with a proper domain")
+    @Size(max = 40, message = "Email cannot be longer than 40 characters")
+    @Schema(description = "User's email address", example = "blackjack@ua", required = true)
     private String email;
 }
