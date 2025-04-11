@@ -414,8 +414,15 @@ public class SecurityController {
                             )))}
     )
     public ResponseEntity<PasswordResetResponseDto> resetPassword(
-            @Valid @RequestBody ResetPasswordRequest request
+            @RequestBody ResetPasswordRequest request
     ) {
+
+        if (request.getNewPassword() == null || request.getNewPassword().length() < 8) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(PasswordResetResponseDto.builder()
+                    .message("Password should have at least 8 symbols")
+                            .build());}
+
         passwordResetService.resetPassword(
                 request.getToken(),
                 request.getNewPassword(),
