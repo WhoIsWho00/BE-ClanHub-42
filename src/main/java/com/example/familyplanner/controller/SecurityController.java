@@ -431,7 +431,7 @@ public class SecurityController {
         }
 
         if (!request.getNewPassword()
-                .matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*")) {
+                .matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).*$")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PasswordResetResponseDto.builder()                        .message("Password must contain at least one special character")                        .build());    }
 
         passwordResetService.resetPassword(
