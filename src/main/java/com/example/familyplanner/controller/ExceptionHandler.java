@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -114,10 +114,10 @@ public class ExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
-//    @org.springframework.web.bind.annotation.ExceptionHandler(ValidationException.class)
-//    public ResponseEntity<String> handleValidationException(ValidationException e) {
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-//    }
+    @org.springframework.web.bind.annotation.ExceptionHandler(ValidationException.class)
+    public ResponseEntity<String> handleValidationException(ValidationException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NonExistingEmailException.class)
     public ResponseEntity<String> NonExistingEmailException(NonExistingEmailException e) {
