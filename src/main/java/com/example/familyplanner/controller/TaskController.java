@@ -505,7 +505,9 @@ import java.util.UUID;
            if (!task.getCreatedBy().equals(currentUser)) {
                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this task");
            }
+
             taskService.deleteTask(id);
+
             return ResponseEntity.ok("Task deleted successfully");
         }
 

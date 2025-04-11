@@ -19,17 +19,22 @@ public class ResetPasswordRequest {
     @Schema(description = "6-digit password reset code received via email", example = "123456", required = true)
     private String token;
 
-    @NotBlank(message = "New password cannot be empty")
+    @NotBlank(message = "Password cannot be empty")
     @Pattern(
-            regexp = "^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).*$",
-            message = "Password must contain at least one special character (!@#$%^&* etc.)")
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).*$",
+            message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character")
     @Size(min = 8, message = "Password should have at least 8 symbols")
-    @Size(max = 25, message = "Password can't be bigger than 25 symbols")
+    @Size(max = 25, message = "Password can't be longer than 25 symbols")
     @Schema(description = "New password", example = "NewPassword!23", required = true)
     private String newPassword;
 
-    @NotBlank(message = "Password confirmation cannot be empty")
-    @Schema(description = "Confirmation of new password", example = "NewPassword!23", required = true)
+    @NotBlank(message = "Password cannot be empty")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).*$",
+            message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character")
+    @Size(min = 8, message = "Password should have at least 8 symbols")
+    @Size(max = 25, message = "Password can't be longer than 25 symbols")
+    @Schema(description = "New password", example = "NewPassword!23", required = true)
     private String confirmPassword;
 
     @NotBlank(message = "Email cannot be empty")
