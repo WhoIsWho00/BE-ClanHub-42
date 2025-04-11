@@ -417,11 +417,22 @@ public class SecurityController {
             @RequestBody ResetPasswordRequest request
     ) {
 
-        if (request.getNewPassword() == null || request.getNewPassword().length() < 8) {
+        if (request.getNewPassword().length() < 8) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(PasswordResetResponseDto.builder()
                     .message("Password should have at least 8 symbols")
                             .build());}
+
+        if(request.getConfirmPassword() == null || request.getNewPassword().length() > 25) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(PasswordResetResponseDto.builder()
+                            .message("Password can't be bigger than 25 symbols")
+                            .build());
+        }
+
+        if (!request.getNewPassword()
+                .matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PasswordResetResponseDto.builder()                        .message("Password must contain at least one special character")                        .build());    }
 
         passwordResetService.resetPassword(
                 request.getToken(),
