@@ -34,7 +34,7 @@ public class ExceptionHandler {
         response.put("errors", errors);
         return ResponseEntity.badRequest().body(response);
     }
-  
+
     @org.springframework.web.bind.annotation.ExceptionHandler(ExcessRegistrationLimitException.class)
     public ResponseEntity<String> handleExcessRegistrationLimitException(NullPointerException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
@@ -50,7 +50,7 @@ public class ExceptionHandler {
 //        });
 //        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 //    }
-  
+
     @org.springframework.web.bind.annotation.ExceptionHandler({
             NotFoundException.class,
             AlreadyExistException.class,
@@ -114,10 +114,10 @@ public class ExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
-//    @org.springframework.web.bind.annotation.ExceptionHandler(ValidationException.class)
-//    public ResponseEntity<String> handleValidationException(ValidationException e) {
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//    }
+    @org.springframework.web.bind.annotation.ExceptionHandler(ValidationException.class)
+    public ResponseEntity<String> handleValidationException(ValidationException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NonExistingEmailException.class)
     public ResponseEntity<String> NonExistingEmailException(NonExistingEmailException e) {
