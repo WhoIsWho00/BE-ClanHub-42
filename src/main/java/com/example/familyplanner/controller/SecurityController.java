@@ -332,19 +332,7 @@ public class SecurityController {
                             )))
             }
     )
-//    public ResponseEntity<PasswordResetRequestResponseDto> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
-//        try {
-//            passwordResetService.sendResetToken(request.getEmail());
-//        } catch (NotFoundException e) {
-//            // Не показывает, созданна почта или нет(для коонфидециальности)
-//        }
-//
-//        PasswordResetRequestResponseDto responseDto = PasswordResetRequestResponseDto.builder()
-//                .message("If your email is registered, a password reset code has been sent.")
-//                .build();
-//
-//        return ResponseEntity.ok(responseDto);
-//    }
+
     public ResponseEntity<PasswordResetRequestResponseDto> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
         try {
             boolean userExists = findUserService.existsByEmail(request.getEmail());

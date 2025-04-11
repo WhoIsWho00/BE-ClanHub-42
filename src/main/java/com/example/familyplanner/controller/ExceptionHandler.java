@@ -114,10 +114,10 @@ public class ExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> handleValidationException(ValidationException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
+//    @org.springframework.web.bind.annotation.ExceptionHandler(ValidationException.class)
+//    public ResponseEntity<String> handleValidationException(ValidationException e) {
+//        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+//    }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NonExistingEmailException.class)
     public ResponseEntity<String> NonExistingEmailException(NonExistingEmailException e) {
