@@ -22,7 +22,7 @@ public class ResetPasswordRequest {
     @NotBlank(message = "New password cannot be empty")
     @Pattern(
             regexp = "^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).*$",
-            message = "Password must contain at least one special character (!@#$%^&* etc.)")
+            message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character")
     @Size(min = 8, message = "Password should have at least 8 symbols")
     @Size(max = 25, message = "Password can't be bigger than 25 symbols")
     @Schema(description = "New password", example = "NewPassword!23", required = true)

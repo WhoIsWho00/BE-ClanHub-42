@@ -455,19 +455,69 @@ public class SecurityController {
 
     @PostMapping("/verify-reset-code")
     @Operation(
-            summary = "Verify reset code",
-            description = "Verifies if the reset code is valid without changing the password",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Code is valid"),
-                    @ApiResponse(responseCode = "400", description = "Invalid token or code format"),
-                    @ApiResponse(responseCode = "410", description = "Code has expired")
+            summary = "verify reset code",
+            description = "Allows you to verify reset code for password resetting",
+            responses = {@ApiResponse(responseCode = "200", description = "Successful verify",
+                    content = @Content(mediaType = "application/json", examples = @ExampleObject(
+                            value = """
+                                    {
+                                      "message": "Operation successful"
+                                    }
+                                    """
+                    ))),
+                    @ApiResponse(responseCode = "400", description = "Invalid request (missing data)",
+                            content = @Content(mediaType = "application/json", examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "timestamp": "2025-03-25T16:26:19.597Z",
+                                              "status": 400,
+                                              "error": "Bad Request",
+                                              "message": "Missing required data",
+                                              "path": "/api/auth/verify-reset-code"
+                                            }
+                                            """
+                            ))),
+                    @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                            content = @Content(mediaType = "application/json", examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "timestamp": "2025-03-25T16:26:19.597Z",
+                                              "status": 401,
+                                              "error": "Unauthorized",
+                                              "message": "Invalid email or password.",
+                                              "path": "/api/auth/verify-reset-code"
+                                            }
+                                            """
+                            ))),
+
+                    @ApiResponse(responseCode = "404", description = "Page not found",
+                            content = @Content(mediaType = "application/json", examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "timestamp": "2025-03-25T16:26:19.597Z",
+                                              "status": 404,
+                                              "error": "Not Found",
+                                              "message": "Page not found.",
+                                              "path": "/api/auth/verify-reset-code"
+                                            }
+                                            """
+                            ))),
+                    @ApiResponse(responseCode = "500", description = "Internal server error",
+                            content = @Content(mediaType = "application/json", examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "timestamp": "2025-03-25T16:26:19.597Z",
+                                              "status": 500,
+                                              "error": "Internal Server Error",
+                                              "message": "An unexpected error occurred.",
+                                              "path": "/api/auth/verify-reset-code"
+                                            }
+                                            """
+                            )))
             }
     )
     public ResponseEntity<?> verifyResetCode(@Valid @RequestBody TokenVerificationRequest request) {
         try {
-            // Найти токен в БД
-            //PasswordResetToken resetToken = passwordResetService.findByTokenAndEmail(request.getToken(), request.getEmail());
-
             Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByTokenAndUserEmail(
                     request.getToken(),
                     request.getEmail()
